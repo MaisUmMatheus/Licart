@@ -61,12 +61,14 @@ class _HomePageState extends State<HomePage> {
     final email = _newsletterController.text.trim();
     if (RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(email)) {
       setState(() {
-        _newsletterMessage = 'Anotado. Você receberá o próximo drop antes de todo mundo.';
+        _newsletterMessage =
+            'Anotado. Você receberá o próximo drop antes de todo mundo.';
       });
       _newsletterController.clear();
     } else {
       setState(() {
-        _newsletterMessage = 'Esse e-mail parece incompleto. Confira o @ e o domínio.';
+        _newsletterMessage =
+            'Esse e-mail parece incompleto. Confira o @ e o domínio.';
       });
     }
   }
@@ -110,7 +112,10 @@ class _HomePageState extends State<HomePage> {
                   // 3. SEÇÃO AS ESTAMPAS (CATÁLOGO / LOJA)
                   Container(
                     key: _storeKey,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 48,
+                    ),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 1200),
@@ -137,16 +142,20 @@ class _HomePageState extends State<HomePage> {
 
                                   return GridView.builder(
                                     shrinkWrap: true,
-                                    physics: const NeverScrollableScrollPhysics(),
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
                                     itemCount: products.length,
-                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: crossAxisCount,
-                                      crossAxisSpacing: 24,
-                                      mainAxisSpacing: 36,
-                                      childAspectRatio: 0.62,
-                                    ),
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: crossAxisCount,
+                                          crossAxisSpacing: 24,
+                                          mainAxisSpacing: 36,
+                                          childAspectRatio: 0.62,
+                                        ),
                                     itemBuilder: (context, index) {
-                                      return ProductCard(product: products[index]);
+                                      return ProductCard(
+                                        product: products[index],
+                                      );
                                     },
                                   );
                                 },
@@ -161,7 +170,10 @@ class _HomePageState extends State<HomePage> {
                   Container(
                     key: _processKey,
                     color: AppTheme.papel2,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 64),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 64,
+                    ),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 1200),
@@ -173,7 +185,10 @@ class _HomePageState extends State<HomePage> {
                   // 5. SEÇÃO MANIFESTO / SOBRE
                   Container(
                     key: _aboutKey,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 64),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 64,
+                    ),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 1200),
@@ -189,7 +204,10 @@ class _HomePageState extends State<HomePage> {
                         top: BorderSide(color: AppTheme.linha, width: 1),
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 64),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 64,
+                    ),
                     child: Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 1200),
@@ -281,8 +299,13 @@ class _HomePageState extends State<HomePage> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.tinta,
                 foregroundColor: AppTheme.papel,
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 18,
+                ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
               ),
               child: Text(
                 'VER A COLEÇÃO',
@@ -298,8 +321,13 @@ class _HomePageState extends State<HomePage> {
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppTheme.tinta,
                 side: const BorderSide(color: AppTheme.tinta, width: 1),
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 18),
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 28,
+                  vertical: 18,
+                ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
               ),
               child: Text(
                 'VER A ARTE NASCER',
@@ -427,12 +455,7 @@ class _HomePageState extends State<HomePage> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        child: Row(
-          children: [
-            ..._buildTickerItems(),
-            ..._buildTickerItems(),
-          ],
-        ),
+        child: Row(children: [..._buildTickerItems(), ..._buildTickerItems()]),
       ),
     );
   }
@@ -501,14 +524,21 @@ class _HomePageState extends State<HomePage> {
             return OutlinedButton(
               onPressed: () => provider.setCategory(cat),
               style: OutlinedButton.styleFrom(
-                backgroundColor: isSelected ? AppTheme.tinta : Colors.transparent,
+                backgroundColor: isSelected
+                    ? AppTheme.tinta
+                    : Colors.transparent,
                 foregroundColor: isSelected ? AppTheme.papel : AppTheme.tinta,
                 side: BorderSide(
                   color: isSelected ? AppTheme.tinta : AppTheme.linha,
                   width: 1,
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.zero,
+                ),
               ),
               child: Text(
                 cat.toUpperCase(),
@@ -531,7 +561,11 @@ class _HomePageState extends State<HomePage> {
         padding: const EdgeInsets.symmetric(vertical: 48),
         child: Column(
           children: [
-            const Icon(Icons.brush_outlined, size: 48, color: AppTheme.tintaSuave),
+            const Icon(
+              Icons.brush_outlined,
+              size: 48,
+              color: AppTheme.tintaSuave,
+            ),
             const SizedBox(height: 16),
             Text(
               'Nenhuma estampa encontrada para esta seleção.',
@@ -588,7 +622,8 @@ class _HomePageState extends State<HomePage> {
                 child: _buildProcessStep(
                   number: '1',
                   title: 'Rascunho',
-                  desc: 'Um traço solto num caderno A4. Muitos não passam daqui. Os que ficam viram arte em tamanho real.',
+                  desc:
+                      'Um traço solto num caderno A4. Muitos não passam daqui. Os que ficam viram arte em tamanho real.',
                 ),
               ),
               const SizedBox(width: 32),
@@ -596,7 +631,8 @@ class _HomePageState extends State<HomePage> {
                 child: _buildProcessStep(
                   number: '2',
                   title: 'Nanquim',
-                  desc: 'Pincel seco, nanquim e papel 300g. O respingo acontece uma vez só. Se não ficou bom, a folha vai para o lixo.',
+                  desc:
+                      'Pincel seco, nanquim e papel 300g. O respingo acontece uma vez só. Se não ficou bom, a folha vai para o lixo.',
                 ),
               ),
               const SizedBox(width: 32),
@@ -604,7 +640,8 @@ class _HomePageState extends State<HomePage> {
                 child: _buildProcessStep(
                   number: '3',
                   title: 'Serigrafia',
-                  desc: 'A arte é escaneada em alta e gravada em tela. Cada camisa é puxada à mão, uma por uma, em algodão 100%.',
+                  desc:
+                      'A arte é escaneada em alta e gravada em tela. Cada camisa é puxada à mão, uma por uma, em algodão 100%.',
                 ),
               ),
             ],
@@ -615,19 +652,22 @@ class _HomePageState extends State<HomePage> {
               _buildProcessStep(
                 number: '1',
                 title: 'Rascunho',
-                desc: 'Um traço solto num caderno A4. Muitos não passam daqui. Os que ficam viram arte em tamanho real.',
+                desc:
+                    'Um traço solto num caderno A4. Muitos não passam daqui. Os que ficam viram arte em tamanho real.',
               ),
               const SizedBox(height: 32),
               _buildProcessStep(
                 number: '2',
                 title: 'Nanquim',
-                desc: 'Pincel seco, nanquim e papel 300g. O respingo acontece uma vez só. Se não ficou bom, a folha vai para o lixo.',
+                desc:
+                    'Pincel seco, nanquim e papel 300g. O respingo acontece uma vez só. Se não ficou bom, a folha vai para o lixo.',
               ),
               const SizedBox(height: 32),
               _buildProcessStep(
                 number: '3',
                 title: 'Serigrafia',
-                desc: 'A arte é escaneada em alta e gravada em tela. Cada camisa é puxada à mão, uma por uma, em algodão 100%.',
+                desc:
+                    'A arte é escaneada em alta e gravada em tela. Cada camisa é puxada à mão, uma por uma, em algodão 100%.',
               ),
             ],
           ),
@@ -642,9 +682,7 @@ class _HomePageState extends State<HomePage> {
   }) {
     return Container(
       decoration: const BoxDecoration(
-        border: Border(
-          top: BorderSide(color: AppTheme.tinta, width: 2),
-        ),
+        border: Border(top: BorderSide(color: AppTheme.tinta, width: 2)),
       ),
       padding: const EdgeInsets.only(top: 16),
       child: Column(
@@ -698,10 +736,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(width: 48),
-              Expanded(
-                flex: 1,
-                child: _buildManifestoFacts(),
-              ),
+              Expanded(flex: 1, child: _buildManifestoFacts()),
             ],
           )
         : Column(
@@ -737,22 +772,13 @@ class _HomePageState extends State<HomePage> {
         Row(
           children: [
             Expanded(
-              child: _buildFactItem(
-                value: '100%',
-                label: 'algodão penteado',
-              ),
+              child: _buildFactItem(value: '100%', label: 'algodão penteado'),
             ),
             Expanded(
-              child: _buildFactItem(
-                value: '150',
-                label: 'peças por estampa',
-              ),
+              child: _buildFactItem(value: '150', label: 'peças por estampa'),
             ),
             Expanded(
-              child: _buildFactItem(
-                value: '1',
-                label: 'original no papel',
-              ),
+              child: _buildFactItem(value: '1', label: 'original no papel'),
             ),
           ],
         ),
@@ -763,9 +789,7 @@ class _HomePageState extends State<HomePage> {
   Widget _buildFactItem({required String value, required String label}) {
     return Container(
       decoration: const BoxDecoration(
-        border: Border(
-          left: BorderSide(color: AppTheme.linha, width: 1),
-        ),
+        border: Border(left: BorderSide(color: AppTheme.linha, width: 1)),
       ),
       padding: const EdgeInsets.only(left: 16),
       child: Column(
@@ -807,10 +831,7 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 8),
         Text(
           'Um e-mail por drop, com a arte original antes de virar camisa. Sem spam.',
-          style: GoogleFonts.archivo(
-            fontSize: 15,
-            color: AppTheme.tintaSuave,
-          ),
+          style: GoogleFonts.archivo(fontSize: 15, color: AppTheme.tintaSuave),
         ),
         const SizedBox(height: 24),
         ConstrainedBox(
@@ -838,7 +859,9 @@ class _HomePageState extends State<HomePage> {
                     backgroundColor: AppTheme.tinta,
                     foregroundColor: AppTheme.papel,
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.zero,
+                    ),
                   ),
                   child: Text(
                     'AVISAR',
@@ -911,14 +934,8 @@ class _HomePageState extends State<HomePage> {
                     label: 'CONTATO',
                     value: 'contato@licart.com.br',
                   ),
-                  _buildFooterCol(
-                    label: 'INSTAGRAM',
-                    value: '@licart',
-                  ),
-                  _buildFooterCol(
-                    label: 'TROCAS',
-                    value: 'Até 30 dias',
-                  ),
+                  _buildFooterCol(label: 'INSTAGRAM', value: '@licart'),
+                  _buildFooterCol(label: 'TROCAS', value: 'Até 30 dias'),
                 ],
               ),
             ],
@@ -944,10 +961,7 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(height: 6),
         SelectableText(
           value,
-          style: GoogleFonts.archivo(
-            fontSize: 14,
-            color: AppTheme.papel,
-          ),
+          style: GoogleFonts.archivo(fontSize: 14, color: AppTheme.papel),
         ),
       ],
     );

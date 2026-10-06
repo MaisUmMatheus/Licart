@@ -22,7 +22,7 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(68);
+  Size get preferredSize => const Size.fromHeight(112);
 
   @override
   Widget build(BuildContext context) {
@@ -33,14 +33,12 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
     return Container(
       decoration: const BoxDecoration(
         color: AppTheme.papel,
-        border: Border(
-          bottom: BorderSide(color: AppTheme.linha, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: AppTheme.linha, width: 1)),
       ),
       child: SafeArea(
         bottom: false,
         child: Container(
-          height: 68,
+          height: 112,
           padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -54,36 +52,11 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
                       onScrollToStore!();
                     }
                   },
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppTheme.tinta,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'L',
-                            style: GoogleFonts.permanentMarker(
-                              color: AppTheme.papel,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'LICÀRT',
-                        style: GoogleFonts.permanentMarker(
-                          fontSize: 26,
-                          color: AppTheme.tinta,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ],
+                  child: Image.asset(
+                    'assets/images/licart-logo-1024.png',
+                    height: 96,
+                    filterQuality: FilterQuality.high,
+                    fit: BoxFit.contain,
                   ),
                 ),
               ),
@@ -93,20 +66,11 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _NavButton(
-                      label: 'LOJA',
-                      onTap: onScrollToStore,
-                    ),
+                    _NavButton(label: 'LOJA', onTap: onScrollToStore),
                     const SizedBox(width: 24),
-                    _NavButton(
-                      label: 'PROCESSO',
-                      onTap: onScrollToProcess,
-                    ),
+                    _NavButton(label: 'PROCESSO', onTap: onScrollToProcess),
                     const SizedBox(width: 24),
-                    _NavButton(
-                      label: 'SOBRE',
-                      onTap: onScrollToAbout,
-                    ),
+                    _NavButton(label: 'SOBRE', onTap: onScrollToAbout),
                   ],
                 ),
 
@@ -121,10 +85,15 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const AdminDashboardPage()),
+                            MaterialPageRoute(
+                              builder: (_) => const AdminDashboardPage(),
+                            ),
                           );
                         },
-                        icon: const Icon(Icons.admin_panel_settings_outlined, size: 16),
+                        icon: const Icon(
+                          Icons.admin_panel_settings_outlined,
+                          size: 16,
+                        ),
                         label: Text(
                           isDesktop ? 'ADMIN' : '',
                           style: GoogleFonts.archivo(
@@ -135,7 +104,10 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         style: TextButton.styleFrom(
                           foregroundColor: AppTheme.respingo,
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
                         ),
                       ),
                     IconButton(
@@ -154,7 +126,10 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
                       },
                       style: TextButton.styleFrom(
                         foregroundColor: AppTheme.tinta,
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                       ),
                       child: Text(
                         'ENTRAR',
@@ -175,8 +150,13 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.tinta,
                       side: const BorderSide(color: AppTheme.tinta, width: 1),
-                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -191,7 +171,10 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppTheme.tinta,
                             borderRadius: BorderRadius.circular(12),

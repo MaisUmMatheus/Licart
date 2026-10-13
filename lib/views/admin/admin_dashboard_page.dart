@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/ink_splatter_painter.dart';
+import '../../widgets/product_image.dart';
 import 'add_product_page.dart';
 
 class AdminDashboardPage extends StatelessWidget {
@@ -204,25 +204,7 @@ class AdminDashboardPage extends StatelessWidget {
                                 color: AppTheme.papel2,
                                 border: Border.all(color: AppTheme.linha),
                               ),
-                              child: product.imageUrl.isNotEmpty
-                                  ? Image.network(
-                                      product.imageUrl,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, _, _) => CustomPaint(
-                                        painter: InkSplatterPainter(
-                                          seed: product.seed ?? product.name.hashCode,
-                                          sizeRatio: 0.35,
-                                          drawDrip: false,
-                                        ),
-                                      ),
-                                    )
-                                  : CustomPaint(
-                                      painter: InkSplatterPainter(
-                                        seed: product.seed ?? product.name.hashCode,
-                                        sizeRatio: 0.35,
-                                        drawDrip: false,
-                                      ),
-                                    ),
+                              child: ProductImage(imageUrl: product.imageUrl),
                             ),
 
                             const SizedBox(width: 16),
@@ -277,6 +259,20 @@ class AdminDashboardPage extends StatelessWidget {
                                   ),
                                 ],
                               ),
+                            ),
+
+                            // Botão Editar
+                            IconButton(
+                              icon: const Icon(Icons.edit_outlined, color: AppTheme.tinta),
+                              tooltip: 'Editar estampa',
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => AddProductPage(editingProduct: product),
+                                  ),
+                                );
+                              },
                             ),
 
                             // Botão Excluir

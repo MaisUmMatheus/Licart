@@ -5,7 +5,7 @@ class Product {
   final String name;
   final String description;
   final double price;
-  final String imageUrl;
+  final List<String> images; // 0, 1 ou 2 imagens (upload ou URL)
   final String category;
   final int stock;
   final double rating;
@@ -18,7 +18,7 @@ class Product {
     required this.name,
     required this.description,
     required this.price,
-    required this.imageUrl,
+    this.images = const [],
     required this.category,
     required this.stock,
     this.rating = 4.8,
@@ -27,12 +27,15 @@ class Product {
     this.tag,
   });
 
+  /// Primeira imagem do produto, ou string vazia se nenhuma foi cadastrada.
+  String get imageUrl => images.isNotEmpty ? images.first : '';
+
   Product copyWith({
     String? id,
     String? name,
     String? description,
     double? price,
-    String? imageUrl,
+    List<String>? images,
     String? category,
     int? stock,
     double? rating,
@@ -45,7 +48,7 @@ class Product {
       name: name ?? this.name,
       description: description ?? this.description,
       price: price ?? this.price,
-      imageUrl: imageUrl ?? this.imageUrl,
+      images: images ?? this.images,
       category: category ?? this.category,
       stock: stock ?? this.stock,
       rating: rating ?? this.rating,
@@ -61,7 +64,7 @@ class Product {
       'name': name,
       'description': description,
       'price': price,
-      'imageUrl': imageUrl,
+      'images': images,
       'category': category,
       'stock': stock,
       'rating': rating,
@@ -72,12 +75,21 @@ class Product {
   }
 
   factory Product.fromMap(Map<String, dynamic> map) {
+    List<String> parsedImages;
+    final rawImages = map['images'];
+    if (rawImages is List) {
+      parsedImages = rawImages.map((e) => e.toString()).toList();
+    } else {
+      final legacyUrl = map['imageUrl'] as String?;
+      parsedImages = (legacyUrl != null && legacyUrl.isNotEmpty) ? [legacyUrl] : [];
+    }
+
     return Product(
       id: map['id'] ?? '',
       name: map['name'] ?? '',
       description: map['description'] ?? '',
       price: (map['price'] as num?)?.toDouble() ?? 0.0,
-      imageUrl: map['imageUrl'] ?? '',
+      images: parsedImages,
       category: map['category'] ?? '',
       stock: (map['stock'] as num?)?.toInt() ?? 0,
       rating: (map['rating'] as num?)?.toDouble() ?? 4.8,

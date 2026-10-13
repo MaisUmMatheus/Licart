@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import '../theme/app_theme.dart';
-import '../widgets/ink_splatter_painter.dart';
+import '../widgets/product_image.dart';
 
 class ProductDetailDialog extends StatefulWidget {
   final Product product;
@@ -19,7 +19,23 @@ class ProductDetailDialog extends StatefulWidget {
 class _ProductDetailDialogState extends State<ProductDetailDialog> {
   int _quantity = 1;
   String _selectedSize = 'M';
+  int _galleryIndex = 0;
   final List<String> _sizes = const ['P', 'M', 'G', 'GG'];
+  final PageController _galleryController = PageController();
+
+  @override
+  void dispose() {
+    _galleryController.dispose();
+    super.dispose();
+  }
+
+  void _goToGalleryPage(int index) {
+    _galleryController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,27 +104,86 @@ class _ProductDetailDialogState extends State<ProductDetailDialog> {
   }
 
   Widget _buildArtworkVisual() {
+    final images = widget.product.images;
+
+    if (images.length <= 1) {
+      return Container(
+        color: AppTheme.papel2,
+        child: ProductImage(imageUrl: images.isNotEmpty ? images.first : ''),
+      );
+    }
+
     return Container(
       color: AppTheme.papel2,
-      child: widget.product.imageUrl.isNotEmpty
-          ? Image.network(
-              widget.product.imageUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => CustomPaint(
-                painter: InkSplatterPainter(
-                  seed: widget.product.seed ?? widget.product.name.hashCode,
-                  sizeRatio: 0.35,
-                  drawDrip: true,
-                ),
-              ),
-            )
-          : CustomPaint(
-              painter: InkSplatterPainter(
-                seed: widget.product.seed ?? widget.product.name.hashCode,
-                sizeRatio: 0.35,
-                drawDrip: true,
-              ),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: PageView.builder(
+              controller: _galleryController,
+              itemCount: images.length,
+              onPageChanged: (i) => setState(() => _galleryIndex = i),
+              itemBuilder: (_, i) => ProductImage(imageUrl: images[i]),
             ),
+          ),
+
+          // Seta Anterior
+          if (_galleryIndex > 0)
+            Positioned(
+              left: 4,
+              top: 0,
+              bottom: 0,
+              child: Center(child: _buildGalleryArrow(Icons.chevron_left, () => _goToGalleryPage(_galleryIndex - 1))),
+            ),
+
+          // Seta Próxima
+          if (_galleryIndex < images.length - 1)
+            Positioned(
+              right: 4,
+              top: 0,
+              bottom: 0,
+              child: Center(child: _buildGalleryArrow(Icons.chevron_right, () => _goToGalleryPage(_galleryIndex + 1))),
+            ),
+
+          Positioned(
+            bottom: 12,
+            left: 0,
+            right: 0,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(images.length, (i) {
+                final isActive = i == _galleryIndex;
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 3),
+                  width: isActive ? 20 : 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: isActive ? AppTheme.tinta : AppTheme.tinta.withValues(alpha: 0.3),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGalleryArrow(IconData icon, VoidCallback onTap) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: 32,
+          height: 32,
+          decoration: BoxDecoration(
+            color: AppTheme.papel.withValues(alpha: 0.85),
+            shape: BoxShape.circle,
+            border: Border.all(color: AppTheme.linha),
+          ),
+          child: Icon(icon, color: AppTheme.tinta, size: 20),
+        ),
+      ),
     );
   }
 

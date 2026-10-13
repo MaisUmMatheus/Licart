@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import '../theme/app_theme.dart';
-import '../widgets/ink_splatter_painter.dart';
+import '../widgets/product_image.dart';
 
 class CartSheet extends StatelessWidget {
   const CartSheet({super.key});
@@ -155,25 +155,7 @@ class CartSheet extends StatelessWidget {
                                 color: AppTheme.papel2,
                                 border: Border.all(color: AppTheme.linha),
                               ),
-                              child: item.product.imageUrl.isNotEmpty
-                                  ? Image.network(
-                                      item.product.imageUrl,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, _, _) => CustomPaint(
-                                        painter: InkSplatterPainter(
-                                          seed: item.product.seed ?? item.product.name.hashCode,
-                                          sizeRatio: 0.35,
-                                          drawDrip: false,
-                                        ),
-                                      ),
-                                    )
-                                  : CustomPaint(
-                                      painter: InkSplatterPainter(
-                                        seed: item.product.seed ?? item.product.name.hashCode,
-                                        sizeRatio: 0.35,
-                                        drawDrip: false,
-                                      ),
-                                    ),
+                              child: ProductImage(imageUrl: item.product.imageUrl),
                             ),
 
                             const SizedBox(width: 14),

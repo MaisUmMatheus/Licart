@@ -6,48 +6,7 @@ import '../models/product.dart';
 import '../providers/cart_provider.dart';
 import '../theme/app_theme.dart';
 import '../views/product_detail_dialog.dart';
-import 'ink_splatter_painter.dart';
-
-/// Desenho vetorial da silhueta da camisa exatamente como no design original
-class _TeeSilhouettePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-
-    final fillPaint = Paint()
-      ..color = AppTheme.papel
-      ..style = PaintingStyle.fill;
-
-    final strokePaint = Paint()
-      ..color = AppTheme.linha
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.5
-      ..strokeJoin = StrokeJoin.round;
-
-    final path = Path()
-      ..moveTo(w * 0.36, h * 0.16)
-      ..lineTo(w * 0.28, h * 0.18)
-      ..lineTo(w * 0.12, h * 0.28)
-      ..lineTo(w * 0.18, h * 0.42)
-      ..lineTo(w * 0.27, h * 0.38)
-      ..lineTo(w * 0.27, h * 0.86)
-      ..lineTo(w * 0.73, h * 0.86)
-      ..lineTo(w * 0.73, h * 0.38)
-      ..lineTo(w * 0.82, h * 0.42)
-      ..lineTo(w * 0.88, h * 0.28)
-      ..lineTo(w * 0.72, h * 0.18)
-      ..lineTo(w * 0.64, h * 0.16)
-      ..cubicTo(w * 0.61, h * 0.22, w * 0.39, h * 0.22, w * 0.36, h * 0.16)
-      ..close();
-
-    canvas.drawPath(path, fillPaint);
-    canvas.drawPath(path, strokePaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
+import 'product_image.dart';
 
 class ProductCard extends StatefulWidget {
   final Product product;
@@ -137,46 +96,10 @@ class _ProductCardState extends State<ProductCard> {
                 ),
                 child: Stack(
                   children: [
-                    // Silhueta da camisa
+                    // Foto do Produto
                     Positioned.fill(
-                      child: CustomPaint(
-                        painter: _TeeSilhouettePainter(),
-                      ),
+                      child: ProductImage(imageUrl: widget.product.imageUrl),
                     ),
-
-                    // Respingo de Nanquim ou Imagem enviada
-                    if (widget.product.imageUrl.isNotEmpty)
-                      Center(
-                        child: SizedBox(
-                          width: 110,
-                          height: 110,
-                          child: Image.network(
-                            widget.product.imageUrl,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, _, _) => CustomPaint(
-                              painter: InkSplatterPainter(
-                                seed: widget.product.seed ?? widget.product.id.hashCode,
-                                sizeRatio: 0.28,
-                                drawDrip: false,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      Center(
-                        child: SizedBox(
-                          width: 120,
-                          height: 120,
-                          child: CustomPaint(
-                            painter: InkSplatterPainter(
-                              seed: widget.product.seed ?? widget.product.name.hashCode,
-                              sizeRatio: 0.32,
-                              drawDrip: false,
-                            ),
-                          ),
-                        ),
-                      ),
 
                     // Tag Drop ou Clássico
                     Positioned(

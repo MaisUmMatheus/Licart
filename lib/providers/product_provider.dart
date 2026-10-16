@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/product.dart';
 
 class ProductProvider extends ChangeNotifier {
+  final CollectionReference<Map<String, dynamic>> _collection =
+      FirebaseFirestore.instance.collection('products');
+
   List<Product> _products = [];
   String _selectedCategory = 'Todas';
   String _searchQuery = '';
@@ -23,7 +26,7 @@ class ProductProvider extends ChangeNotifier {
   }
 
   ProductProvider() {
-    _initCatalog();
+    _listenToCatalog();
   }
 
   List<Product> get filteredProducts {
@@ -52,136 +55,30 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _initCatalog() async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedProductsJson = prefs.getStringList('licart_products_v2');
-
-      if (savedProductsJson != null && savedProductsJson.isNotEmpty) {
-        _products = savedProductsJson
-            .map((item) => Product.fromJson(item))
-            .toList();
-      } else {
-        _products = _getInitialCatalog();
-        await _saveToStorage();
-      }
-    } catch (e) {
-      debugPrint('Erro ao carregar catálogo: $e');
-      _products = _getInitialCatalog();
-    }
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  Future<void> _saveToStorage() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final stringList = _products.map((p) => p.toJson()).toList();
-      await prefs.setStringList('licart_products_v2', stringList);
-    } catch (e) {
-      debugPrint('Erro ao salvar produtos: $e');
-    }
+  void _listenToCatalog() {
+    _collection.snapshots().listen(
+      (snapshot) {
+        _products = snapshot.docs.map((doc) => Product.fromMap(doc.data())).toList();
+        _isLoading = false;
+        notifyListeners();
+      },
+      onError: (e) {
+        debugPrint('Erro ao ouvir catálogo no Firestore: $e');
+        _isLoading = false;
+        notifyListeners();
+      },
+    );
   }
 
   Future<void> addProduct(Product product) async {
-    _products.insert(0, product);
-    notifyListeners();
-    await _saveToStorage();
+    await _collection.doc(product.id).set(product.toMap());
   }
 
   Future<void> updateProduct(Product updatedProduct) async {
-    final index = _products.indexWhere((p) => p.id == updatedProduct.id);
-    if (index != -1) {
-      _products[index] = updatedProduct;
-      notifyListeners();
-      await _saveToStorage();
-    }
+    await _collection.doc(updatedProduct.id).set(updatedProduct.toMap());
   }
 
   Future<void> removeProduct(String productId) async {
-    _products.removeWhere((p) => p.id == productId);
-    notifyListeners();
-    await _saveToStorage();
-  }
-
-  List<Product> _getInitialCatalog() {
-    return [
-      const Product(
-        id: 'corvo',
-        name: 'CORVO',
-        description: 'Asas abertas em três pinceladas. Nanquim, madrugada de outubro.',
-        price: 139.00,
-        category: 'Drop 07',
-        tag: 'Drop 07',
-        stock: 15,
-        rating: 5.0,
-        isFeatured: true,
-        seed: 11,
-      ),
-      const Product(
-        id: 'madrugada',
-        name: 'MADRUGADA',
-        description: 'Um traço só, sem tirar o pincel do papel.',
-        price: 129.00,
-        category: 'Drop 07',
-        tag: 'Drop 07',
-        stock: 22,
-        rating: 4.9,
-        isFeatured: true,
-        seed: 42,
-      ),
-      const Product(
-        id: 'gota-zero',
-        name: 'GOTA ZERO',
-        description: 'O primeiro respingo da marca. A folha original ainda está na parede.',
-        price: 119.00,
-        category: 'Clássicos',
-        tag: 'Clássicos',
-        stock: 18,
-        rating: 4.8,
-        isFeatured: false,
-        seed: 7,
-      ),
-      const Product(
-        id: 'risco',
-        name: 'RISCO',
-        description: 'Pincel seco arrastado em diagonal. Textura que só a mão faz.',
-        price: 129.00,
-        category: 'Clássicos',
-        tag: 'Clássicos',
-        stock: 12,
-        rating: 4.9,
-        isFeatured: false,
-        seed: 93,
-      ),
-      const Product(
-        id: 'nanquim',
-        name: 'NANQUIM',
-        description: 'Tinta derramada e soprada até virar raiz.',
-        price: 139.00,
-        category: 'Drop 07',
-        tag: 'Drop 07',
-        stock: 10,
-        rating: 5.0,
-        isFeatured: true,
-        seed: 305,
-      ),
-      const Product(
-        id: 'voo-cego',
-        name: 'VOO CEGO',
-        description: 'Desenhado de olhos fechados, em quarenta segundos.',
-        price: 129.00,
-        category: 'Clássicos',
-        tag: 'Clássicos',
-        stock: 14,
-        rating: 4.8,
-        isFeatured: false,
-        seed: 1888,
-      ),
-    ];
+    await _collection.doc(productId).delete();
   }
 }

@@ -1,85 +1,128 @@
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb_auth;
 import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 
 class AuthProvider extends ChangeNotifier {
+  final fb_auth.FirebaseAuth _auth = fb_auth.FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   AppUser? _user;
   bool _isLoading = false;
+  String? _errorMessage;
 
   AppUser? get user => _user;
   bool get isLoggedIn => _user != null;
   bool get isAuthenticated => isLoggedIn;
   bool get isAdmin => _user?.isAdmin ?? false;
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   AuthProvider() {
-    _loadUserSession();
+    _auth.authStateChanges().listen(_onAuthStateChanged);
   }
 
-  Future<void> _loadUserSession() async {
+  Future<void> _onAuthStateChanged(fb_auth.User? firebaseUser) async {
+    if (firebaseUser == null) {
+      _user = null;
+      notifyListeners();
+      return;
+    }
+    await _loadUserProfile(firebaseUser);
+  }
+
+  Future<void> _loadUserProfile(fb_auth.User firebaseUser) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final userString = prefs.getString('auth_user');
-      if (userString != null) {
-        final Map<String, dynamic> map = json.decode(userString);
-        _user = AppUser.fromMap(map);
-        notifyListeners();
+      final doc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+      if (doc.exists) {
+        _user = AppUser.fromMap(doc.data()!);
+      } else {
+        _user = AppUser(
+          uid: firebaseUser.uid,
+          email: firebaseUser.email ?? '',
+          name: firebaseUser.email?.split('@').first ?? 'Usuário',
+        );
       }
     } catch (e) {
-      debugPrint('Erro ao carregar sessão: $e');
+      debugPrint('Erro ao carregar perfil do usuário: $e');
     }
+    notifyListeners();
   }
 
   Future<bool> login(String email, String password) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
-
-    // Simulação rápida de autenticação
-    await Future.delayed(const Duration(milliseconds: 600));
-
-    final trimmedEmail = email.trim().toLowerCase();
-    
-    // Regra simples: admin@halina.com ou admin@loja.com é Admin.
-    // Qualquer outro login é usuário cliente normal.
-    final bool isUserAdmin = trimmedEmail == 'admin@halina.com' || 
-                            trimmedEmail == 'admin@loja.com' ||
-                            trimmedEmail.contains('admin');
-
-    String displayName = 'Usuário';
-    if (isUserAdmin) {
-      displayName = 'Administrador Halina';
-    } else if (trimmedEmail.contains('@')) {
-      final parts = trimmedEmail.split('@')[0];
-      displayName = parts[0].toUpperCase() + parts.substring(1);
-    }
-
-    _user = AppUser(
-      email: trimmedEmail,
-      name: displayName,
-      isAdmin: isUserAdmin,
-    );
 
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('auth_user', json.encode(_user!.toMap()));
-    } catch (e) {
-      debugPrint('Erro ao salvar sessão: $e');
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      if (credential.user != null) {
+        await _loadUserProfile(credential.user!);
+      }
+      return true;
+    } on fb_auth.FirebaseAuthException catch (e) {
+      _errorMessage = _mapAuthError(e.code);
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
+  }
 
-    _isLoading = false;
+  Future<bool> signUp(String name, String email, String password) async {
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
-    return true;
+
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+      final firebaseUser = credential.user;
+      if (firebaseUser != null) {
+        final newUser = AppUser(
+          uid: firebaseUser.uid,
+          email: email.trim().toLowerCase(),
+          name: name.trim(),
+        );
+        await _firestore.collection('users').doc(firebaseUser.uid).set(newUser.toMap());
+        _user = newUser;
+      }
+      return true;
+    } on fb_auth.FirebaseAuthException catch (e) {
+      _errorMessage = _mapAuthError(e.code);
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> logout() async {
+    await _auth.signOut();
     _user = null;
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('auth_user');
-    } catch (e) {
-      debugPrint('Erro ao deslogar: $e');
-    }
     notifyListeners();
+  }
+
+  String _mapAuthError(String code) {
+    switch (code) {
+      case 'invalid-email':
+        return 'E-mail inválido.';
+      case 'user-not-found':
+        return 'Não existe conta com esse e-mail.';
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'E-mail ou senha incorretos.';
+      case 'email-already-in-use':
+        return 'Já existe uma conta com esse e-mail.';
+      case 'weak-password':
+        return 'A senha é muito fraca. Use pelo menos 6 caracteres.';
+      default:
+        return 'Não foi possível concluir. Tente novamente.';
+    }
   }
 }

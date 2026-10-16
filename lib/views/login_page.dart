@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import 'admin/admin_dashboard_page.dart';
+import 'signup_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -59,13 +60,19 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         Navigator.pop(context);
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            auth.errorMessage ?? 'Não foi possível entrar.',
+            style: GoogleFonts.archivo(fontWeight: FontWeight.w700),
+          ),
+          backgroundColor: AppTheme.respingo,
+          behavior: SnackBarBehavior.floating,
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        ),
+      );
     }
-  }
-
-  void _fillAdminDemo() {
-    _emailController.text = 'admin@halina.com';
-    _passwordController.text = 'admin123';
-    _submitLogin();
   }
 
   @override
@@ -242,37 +249,21 @@ class _LoginPageState extends State<LoginPage> {
 
                     const SizedBox(height: 20),
 
-                    // Atalho Demo Administrador
+                    // Criar conta
                     OutlinedButton.icon(
-                      onPressed: _fillAdminDemo,
-                      icon: const Icon(Icons.admin_panel_settings_outlined, size: 18),
-                      label: const Text('ENTRAR COMO ADMINISTRADOR (DEMO)'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SignupPage()),
+                        );
+                      },
+                      icon: const Icon(Icons.person_add_alt_outlined, size: 18),
+                      label: const Text('CRIAR CONTA'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppTheme.tinta,
                         side: const BorderSide(color: AppTheme.linha),
                         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Entrar como cliente demo
-                    TextButton(
-                      onPressed: () {
-                        _emailController.text = 'cliente@licart.com.br';
-                        _passwordController.text = '123456';
-                        _submitLogin();
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppTheme.tintaSuave,
-                      ),
-                      child: Text(
-                        'Usar conta de cliente de teste',
-                        style: GoogleFonts.archivo(
-                          fontSize: 12,
-                          decoration: TextDecoration.underline,
-                        ),
                       ),
                     ),
                   ],

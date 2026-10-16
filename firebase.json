@@ -1,0 +1,15 @@
+{
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "licart-halina",
+          "configurations": { "web": "1:652688729679:web:e612504cafd2b2f2136c3a" }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

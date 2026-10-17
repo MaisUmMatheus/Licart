@@ -6,8 +6,10 @@ import '../providers/product_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ink_splatter_painter.dart';
 import '../widgets/product_card.dart';
+import '../widgets/product_image.dart';
 import '../widgets/store_header.dart';
 import 'cart_sheet.dart';
+import 'product_detail_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,7 +26,7 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey _processKey = GlobalKey();
   final GlobalKey _aboutKey = GlobalKey();
 
-  int _heroSeed = 20261005;
+  int _backgroundSeed = 20261005;
 
   final TextEditingController _newsletterController = TextEditingController();
   String _newsletterMessage = '';
@@ -51,9 +53,9 @@ class _HomePageState extends State<HomePage> {
     _scaffoldKey.currentState?.openEndDrawer();
   }
 
-  void _redrawHeroSplatter() {
+  void _redrawBackground() {
     setState(() {
-      _heroSeed = Random().nextInt(100000000);
+      _backgroundSeed = Random().nextInt(100000000);
     });
   }
 
@@ -91,141 +93,163 @@ class _HomePageState extends State<HomePage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         child: CartSheet(),
       ),
-      body: productProvider.isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: AppTheme.tinta,
-                strokeWidth: 2,
-              ),
-            )
-          : SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // 1. HERO SECTION
-                  _buildHeroSection(isDesktop),
-
-                  // 2. TICKER STRIP (FITA INFINITA DE NANQUIM)
-                  _buildTickerStrip(),
-
-                  // 3. SEÇÃO AS ESTAMPAS (CATÁLOGO / LOJA)
-                  Container(
-                    key: _storeKey,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 48,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1200),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Cabeçalho da Seção e Filtros
-                            _buildCatalogHeader(productProvider),
-
-                            const SizedBox(height: 32),
-
-                            // Grid de Produtos
-                            if (products.isEmpty)
-                              _buildEmptyCatalog(productProvider)
-                            else
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  int crossAxisCount = 3;
-                                  if (constraints.maxWidth < 640) {
-                                    crossAxisCount = 1;
-                                  } else if (constraints.maxWidth < 980) {
-                                    crossAxisCount = 2;
-                                  }
-
-                                  return GridView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: products.length,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
-                                          crossAxisCount: crossAxisCount,
-                                          crossAxisSpacing: 24,
-                                          mainAxisSpacing: 36,
-                                          childAspectRatio: 0.62,
-                                        ),
-                                    itemBuilder: (context, index) {
-                                      return ProductCard(
-                                        product: products[index],
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
+      body: Stack(
+        children: [
+          // Respingo de nanquim fixo no fundo da página inteira
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Opacity(
+                opacity: 0.05,
+                child: CustomPaint(
+                  painter: InkSplatterPainter(
+                    seed: _backgroundSeed,
+                    sizeRatio: 0.9,
+                    customCenterY: 0.5,
+                    drawStroke: true,
+                    drawDrip: true,
                   ),
-
-                  // 4. SEÇÃO PROCESSO (COMO A ARTE NASCE)
-                  Container(
-                    key: _processKey,
-                    color: AppTheme.papel2,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 64,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1200),
-                        child: _buildProcessSection(isDesktop),
-                      ),
-                    ),
-                  ),
-
-                  // 5. SEÇÃO MANIFESTO / SOBRE
-                  Container(
-                    key: _aboutKey,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 64,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1200),
-                        child: _buildManifestoSection(isDesktop),
-                      ),
-                    ),
-                  ),
-
-                  // 6. SEÇÃO NEWSLETTER
-                  Container(
-                    decoration: const BoxDecoration(
-                      border: Border(
-                        top: BorderSide(color: AppTheme.linha, width: 1),
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 64,
-                    ),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 1200),
-                        child: _buildNewsletterSection(),
-                      ),
-                    ),
-                  ),
-
-                  // 7. FOOTER
-                  _buildFooter(),
-                ],
+                ),
               ),
             ),
+          ),
+
+          productProvider.isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: AppTheme.tinta,
+                    strokeWidth: 2,
+                  ),
+                )
+              : SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // 1. HERO SECTION
+                      _buildHeroSection(isDesktop, productProvider),
+
+                      // 2. TICKER STRIP (FITA INFINITA DE NANQUIM)
+                      _buildTickerStrip(),
+
+                      // 3. SEÇÃO AS ESTAMPAS (CATÁLOGO / LOJA)
+                      Container(
+                        key: _storeKey,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 48,
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1200),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Cabeçalho da Seção e Filtros
+                                _buildCatalogHeader(productProvider),
+
+                                const SizedBox(height: 32),
+
+                                // Grid de Produtos
+                                if (products.isEmpty)
+                                  _buildEmptyCatalog(productProvider)
+                                else
+                                  LayoutBuilder(
+                                    builder: (context, constraints) {
+                                      int crossAxisCount = 3;
+                                      if (constraints.maxWidth < 640) {
+                                        crossAxisCount = 1;
+                                      } else if (constraints.maxWidth < 980) {
+                                        crossAxisCount = 2;
+                                      }
+
+                                      return GridView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: products.length,
+                                        gridDelegate:
+                                            SliverGridDelegateWithFixedCrossAxisCount(
+                                              crossAxisCount: crossAxisCount,
+                                              crossAxisSpacing: 24,
+                                              mainAxisSpacing: 36,
+                                              childAspectRatio: 0.62,
+                                            ),
+                                        itemBuilder: (context, index) {
+                                          return ProductCard(
+                                            product: products[index],
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // 4. SEÇÃO PROCESSO (COMO A ARTE NASCE)
+                      Container(
+                        key: _processKey,
+                        color: AppTheme.papel2,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 64,
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1200),
+                            child: _buildProcessSection(isDesktop),
+                          ),
+                        ),
+                      ),
+
+                      // 5. SEÇÃO MANIFESTO / SOBRE
+                      Container(
+                        key: _aboutKey,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 64,
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1200),
+                            child: _buildManifestoSection(isDesktop),
+                          ),
+                        ),
+                      ),
+
+                      // 6. SEÇÃO NEWSLETTER
+                      Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: AppTheme.linha, width: 1),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 64,
+                        ),
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1200),
+                            child: _buildNewsletterSection(),
+                          ),
+                        ),
+                      ),
+
+                      // 7. FOOTER
+                      _buildFooter(),
+                    ],
+                  ),
+                ),
+        ],
+      ),
     );
   }
 
   // 1. HERO SECTION
-  Widget _buildHeroSection(bool isDesktop) {
+  Widget _buildHeroSection(bool isDesktop, ProductProvider productProvider) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
       child: Center(
@@ -235,17 +259,29 @@ class _HomePageState extends State<HomePage> {
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Expanded(flex: 11, child: _buildHeroText()),
-                    const SizedBox(width: 48),
-                    Expanded(flex: 10, child: _buildHeroArtCanvas()),
+                    Expanded(flex: 13, child: _buildHeroText()),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      flex: 7,
+                      child: Align(
+                        alignment: Alignment.topRight,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 360),
+                          child: _buildHeroArtCanvas(productProvider),
+                        ),
+                      ),
+                    ),
                   ],
                 )
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildHeroText(),
-                    const SizedBox(height: 36),
-                    _buildHeroArtCanvas(),
+                    const SizedBox(height: 20),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 320),
+                      child: _buildHeroArtCanvas(productProvider),
+                    ),
                   ],
                 ),
         ),
@@ -340,108 +376,164 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+        const SizedBox(height: 16),
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: _redrawBackground,
+            child: Text(
+              'Trocar o fundo',
+              style: GoogleFonts.archivo(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.tintaSuave,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildHeroArtCanvas() {
+  Widget _buildHeroArtCanvas(ProductProvider productProvider) {
+    final latest = productProvider.latestProduct;
+
+    if (latest == null) {
+      // Sem nenhuma estampa cadastrada ainda: mantém o respingo de nanquim,
+      // que precisa de um tamanho fixo pra se desenhar.
+      return AspectRatio(
+        aspectRatio: 4 / 4.8,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppTheme.papel2,
+            border: Border.all(color: AppTheme.linha, width: 1),
+          ),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: InkSplatterPainter(
+                    seed: _backgroundSeed,
+                    sizeRatio: 0.28,
+                    customCenterY: 0.48,
+                    drawStroke: true,
+                    drawDrip: true,
+                  ),
+                ),
+              ),
+              _buildNovoDropBadge(),
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 16,
+                child: Text(
+                  'Original · nanquim sobre papel 300g',
+                  style: GoogleFonts.archivo(
+                    fontSize: 12,
+                    color: AppTheme.tintaSuave,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Com uma estampa: mesmo bloco de tamanho fixo de sempre, só trocando
+    // o conteúdo pela foto do produto.
     return AspectRatio(
       aspectRatio: 4 / 4.8,
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppTheme.papel2,
-          border: Border.all(color: AppTheme.linha, width: 1),
+      child: GestureDetector(
+        onTap: () => showDialog(
+          context: context,
+          builder: (_) => ProductDetailDialog(product: latest),
         ),
-        child: Stack(
-          children: [
-            // Pintura de Nanquim Dinâmica
-            Positioned.fill(
-              child: CustomPaint(
-                painter: InkSplatterPainter(
-                  seed: _heroSeed,
-                  sizeRatio: 0.28,
-                  customCenterY: 0.48,
-                  drawStroke: true,
-                  drawDrip: true,
-                ),
-              ),
-            ),
-
-            // Carimbo "Novo Drop" em vermelho com rotação -12 graus
-            Positioned(
-              top: 24,
-              right: 24,
-              child: Transform.rotate(
-                angle: -12 * (pi / 180),
-                child: Container(
-                  width: 90,
-                  height: 90,
-                  decoration: const BoxDecoration(
-                    color: AppTheme.respingo,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'NOVO',
-                          style: GoogleFonts.archivo(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.0,
-                            color: AppTheme.sobreRespingo,
-                          ),
-                        ),
-                        Text(
-                          'Drop',
-                          style: GoogleFonts.permanentMarker(
-                            fontSize: 26,
-                            color: AppTheme.sobreRespingo,
-                            height: 1.0,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-            // Rodapé do Canvas com botão "Respingar de novo"
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 16,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Original · nanquim sobre papel 300g',
-                    style: GoogleFonts.archivo(
-                      fontSize: 12,
-                      color: AppTheme.tintaSuave,
-                    ),
-                  ),
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: _redrawHeroSplatter,
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppTheme.papel2,
+            border: Border.all(color: AppTheme.linha, width: 1),
+          ),
+          child: Stack(
+            children: [
+              Positioned.fill(child: ProductImage(imageUrl: latest.imageUrl)),
+              _buildNovoDropBadge(),
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 16,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
                       child: Text(
-                        'Respingar de novo',
+                        latest.name,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.archivo(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.tinta,
-                          decoration: TextDecoration.underline,
+                          color: AppTheme.tintaSuave,
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    Text(
+                      'Ver estampa',
+                      style: GoogleFonts.archivo(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppTheme.tinta,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Carimbo "Novo Drop" em vermelho com rotação -12 graus
+  Widget _buildNovoDropBadge() {
+    return Positioned(
+      top: 24,
+      right: 24,
+      child: Transform.rotate(
+        angle: -12 * (pi / 180),
+        child: Container(
+          width: 90,
+          height: 90,
+          decoration: const BoxDecoration(
+            color: AppTheme.respingo,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'NOVO',
+                  style: GoogleFonts.archivo(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
+                    color: AppTheme.sobreRespingo,
+                  ),
+                ),
+                Text(
+                  'Drop',
+                  style: GoogleFonts.permanentMarker(
+                    fontSize: 26,
+                    color: AppTheme.sobreRespingo,
+                    height: 1.0,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

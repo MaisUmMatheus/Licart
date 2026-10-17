@@ -12,6 +12,18 @@ class ProductProvider extends ChangeNotifier {
   bool _isLoading = true;
 
   List<Product> get products => _products;
+
+  /// A estampa mais recente cadastrada (pelo id, que é o horário de criação
+  /// em milissegundos), ou null se o catálogo estiver vazio.
+  Product? get latestProduct {
+    if (_products.isEmpty) return null;
+    final sorted = [..._products]
+      ..sort(
+        (a, b) => (int.tryParse(b.id) ?? 0).compareTo(int.tryParse(a.id) ?? 0),
+      );
+    return sorted.first;
+  }
+
   String get selectedCategory => _selectedCategory;
   String get searchQuery => _searchQuery;
   bool get isLoading => _isLoading;
@@ -31,15 +43,19 @@ class ProductProvider extends ChangeNotifier {
 
   List<Product> get filteredProducts {
     return _products.where((prod) {
-      final matchesCategory = _selectedCategory == 'Todas' ||
+      final matchesCategory =
+          _selectedCategory == 'Todas' ||
           prod.category.toLowerCase() == _selectedCategory.toLowerCase() ||
-          (prod.tag != null && prod.tag!.toLowerCase() == _selectedCategory.toLowerCase());
+          (prod.tag != null &&
+              prod.tag!.toLowerCase() == _selectedCategory.toLowerCase());
 
-      final matchesSearch = _searchQuery.isEmpty ||
+      final matchesSearch =
+          _searchQuery.isEmpty ||
           prod.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           prod.description.toLowerCase().contains(_searchQuery.toLowerCase()) ||
           prod.category.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          (prod.tag != null && prod.tag!.toLowerCase().contains(_searchQuery.toLowerCase()));
+          (prod.tag != null &&
+              prod.tag!.toLowerCase().contains(_searchQuery.toLowerCase()));
 
       return matchesCategory && matchesSearch;
     }).toList();
@@ -58,7 +74,9 @@ class ProductProvider extends ChangeNotifier {
   void _listenToCatalog() {
     _collection.snapshots().listen(
       (snapshot) {
-        _products = snapshot.docs.map((doc) => Product.fromMap(doc.data())).toList();
+        _products = snapshot.docs
+            .map((doc) => Product.fromMap(doc.data()))
+            .toList();
         _isLoading = false;
         notifyListeners();
       },

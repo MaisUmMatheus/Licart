@@ -12,6 +12,7 @@ class Product {
   final bool isFeatured;
   final int? seed;
   final String? tag; // e.g. "Drop 07" ou "Clássicos"
+  final String? youdrawUrl; // link do produto na loja da YouDraw
 
   const Product({
     required this.id,
@@ -25,6 +26,7 @@ class Product {
     this.isFeatured = false,
     this.seed,
     this.tag,
+    this.youdrawUrl,
   });
 
   /// Primeira imagem do produto, ou string vazia se nenhuma foi cadastrada.
@@ -42,6 +44,7 @@ class Product {
     bool? isFeatured,
     int? seed,
     String? tag,
+    String? youdrawUrl,
   }) {
     return Product(
       id: id ?? this.id,
@@ -55,6 +58,7 @@ class Product {
       isFeatured: isFeatured ?? this.isFeatured,
       seed: seed ?? this.seed,
       tag: tag ?? this.tag,
+      youdrawUrl: youdrawUrl ?? this.youdrawUrl,
     );
   }
 
@@ -71,6 +75,7 @@ class Product {
       'isFeatured': isFeatured,
       'seed': seed,
       'tag': tag,
+      'youdrawUrl': youdrawUrl,
     };
   }
 
@@ -96,6 +101,7 @@ class Product {
       isFeatured: map['isFeatured'] ?? false,
       seed: (map['seed'] as num?)?.toInt(),
       tag: map['tag'],
+      youdrawUrl: map['youdrawUrl'] as String?,
     );
   }
 

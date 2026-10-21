@@ -35,6 +35,9 @@ class _AddProductPageState extends State<AddProductPage> {
   late final _descriptionController = TextEditingController(
     text: widget.editingProduct?.description ?? '',
   );
+  late final _youdrawUrlController = TextEditingController(
+    text: widget.editingProduct?.youdrawUrl ?? '',
+  );
 
   static const int _maxImages = 2;
 
@@ -55,6 +58,7 @@ class _AddProductPageState extends State<AddProductPage> {
     _priceController.dispose();
     _stockController.dispose();
     _descriptionController.dispose();
+    _youdrawUrlController.dispose();
     super.dispose();
   }
 
@@ -102,6 +106,7 @@ class _AddProductPageState extends State<AddProductPage> {
         category: _selectedCategory,
         tag: _selectedCategory,
         stock: stock,
+        youdrawUrl: _youdrawUrlController.text.trim(),
       );
       await productProvider.updateProduct(updatedProduct);
     } else {
@@ -116,6 +121,7 @@ class _AddProductPageState extends State<AddProductPage> {
         stock: stock,
         isFeatured: true,
         rating: 5.0,
+        youdrawUrl: _youdrawUrlController.text.trim(),
       );
       await productProvider.addProduct(newProduct);
     }
@@ -294,6 +300,24 @@ class _AddProductPageState extends State<AddProductPage> {
                     ),
                     validator: (val) {
                       if (val == null || val.trim().isEmpty) return 'Informe a descrição da peça';
+                      return null;
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+                  _buildLabel('LINK DO PRODUTO NA YOUDRAW'),
+                  const SizedBox(height: 6),
+                  TextFormField(
+                    controller: _youdrawUrlController,
+                    decoration: const InputDecoration(
+                      hintText: 'https://youdraw.store/licart/produto/3328-sketch-wolf-oversized',
+                    ),
+                    validator: (val) {
+                      final link = val?.trim() ?? '';
+                      if (link.isEmpty) return null; // sem link, abre a loja inteira
+                      if (!link.startsWith('https://youdraw.store/licart/produto/')) {
+                        return 'Cole o link da página do produto na loja da YouDraw';
+                      }
                       return null;
                     },
                   ),

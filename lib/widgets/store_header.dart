@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../providers/auth_provider.dart';
-import '../providers/cart_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/abrir_loja.dart';
 import '../views/login_page.dart';
 import '../views/admin/admin_dashboard_page.dart';
 
@@ -27,7 +28,6 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final cart = context.watch<CartProvider>();
     final isDesktop = MediaQuery.of(context).size.width > 720;
 
     return Container(
@@ -144,9 +144,12 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
 
                   const SizedBox(width: 8),
 
-                  // Botão Sacola de Compras com Badge
+                  // Botão que leva para a loja da YouDraw
                   OutlinedButton(
-                    onPressed: onOpenCart,
+                    onPressed: () => launchUrl(
+                      Uri.parse(lojaYouDraw),
+                      webOnlyWindowName: '_blank',
+                    ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppTheme.tinta,
                       side: const BorderSide(color: AppTheme.tinta, width: 1),
@@ -158,37 +161,13 @@ class StoreHeader extends StatelessWidget implements PreferredSizeWidget {
                         vertical: 10,
                       ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'SACOLA',
-                          style: GoogleFonts.archivo(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppTheme.tinta,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            '${cart.itemCount}',
-                            style: GoogleFonts.archivo(
-                              color: AppTheme.papel,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      'LOJA',
+                      style: GoogleFonts.archivo(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.0,
+                      ),
                     ),
                   ),
                 ],

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../models/product.dart';
-import '../providers/cart_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/abrir_loja.dart';
 import '../widgets/product_image.dart';
 
 class ProductDetailDialog extends StatefulWidget {
@@ -17,10 +16,7 @@ class ProductDetailDialog extends StatefulWidget {
 }
 
 class _ProductDetailDialogState extends State<ProductDetailDialog> {
-  int _quantity = 1;
-  String _selectedSize = 'M';
   int _galleryIndex = 0;
-  final List<String> _sizes = const ['P', 'M', 'G', 'GG'];
   final PageController _galleryController = PageController();
 
   @override
@@ -188,8 +184,6 @@ class _ProductDetailDialogState extends State<ProductDetailDialog> {
   }
 
   Widget _buildDetails(BuildContext context, NumberFormat currencyFormatter) {
-    final cart = context.read<CartProvider>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -241,132 +235,23 @@ class _ProductDetailDialogState extends State<ProductDetailDialog> {
         ),
         const SizedBox(height: 20),
 
-        // Seleção de Tamanho
         Text(
-          'TAMANHO',
-          style: GoogleFonts.archivo(
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.0,
-            color: AppTheme.tinta,
-          ),
+          'Cor e tamanho você escolhe na próxima página.',
+          style: GoogleFonts.archivo(fontSize: 12, color: AppTheme.tintaSuave),
         ),
-        const SizedBox(height: 8),
-        Row(
-          children: _sizes.map((s) {
-            final isSelected = _selectedSize == s;
-            return Padding(
-              padding: const EdgeInsets.only(right: 8.0),
-              child: SizedBox(
-                width: 44,
-                height: 40,
-                child: OutlinedButton(
-                  onPressed: () => setState(() => _selectedSize = s),
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    backgroundColor: isSelected ? AppTheme.tinta : Colors.transparent,
-                    foregroundColor: isSelected ? AppTheme.papel : AppTheme.tinta,
-                    side: BorderSide(
-                      color: isSelected ? AppTheme.tinta : AppTheme.linha,
-                      width: 1,
-                    ),
-                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                  ),
-                  child: Text(
-                    s,
-                    style: GoogleFonts.archivo(fontWeight: FontWeight.w700),
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-
-        const SizedBox(height: 20),
-
-        // Quantidade
-        Row(
-          children: [
-            Text(
-              'QUANTIDADE',
-              style: GoogleFonts.archivo(
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.0,
-                color: AppTheme.tinta,
-              ),
-            ),
-            const SizedBox(width: 16),
-            SizedBox(
-              width: 32,
-              height: 32,
-              child: OutlinedButton(
-                onPressed: () {
-                  if (_quantity > 1) setState(() => _quantity--);
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  side: const BorderSide(color: AppTheme.linha),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                ),
-                child: const Icon(Icons.remove, size: 14, color: AppTheme.tinta),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Text(
-                '$_quantity',
-                style: GoogleFonts.archivo(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(
-              width: 32,
-              height: 32,
-              child: OutlinedButton(
-                onPressed: () => setState(() => _quantity++),
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  side: const BorderSide(color: AppTheme.linha),
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                ),
-                child: const Icon(Icons.add, size: 14, color: AppTheme.tinta),
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 28),
-
-        // Botão Adicionar à Sacola
+        const SizedBox(height: 10),
         SizedBox(
           width: double.infinity,
           height: 48,
           child: ElevatedButton(
-            onPressed: () {
-              for (int i = 0; i < _quantity; i++) {
-                cart.addItem(widget.product, size: _selectedSize);
-              }
-              Navigator.pop(context);
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '${widget.product.name} ($_selectedSize) adicionado à sacola!',
-                    style: GoogleFonts.archivo(fontWeight: FontWeight.w700),
-                  ),
-                  backgroundColor: AppTheme.tinta,
-                  behavior: SnackBarBehavior.floating,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                ),
-              );
-            },
+            onPressed: () => abrirNaLoja(context, widget.product),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.tinta,
               foregroundColor: AppTheme.papel,
               shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
             ),
             child: Text(
-              'ADICIONAR À SACOLA',
+              'COMPRAR',
               style: GoogleFonts.archivo(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,

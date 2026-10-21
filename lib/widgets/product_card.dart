@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../models/product.dart';
-import '../providers/cart_provider.dart';
 import '../theme/app_theme.dart';
+import '../utils/abrir_loja.dart';
 import '../views/product_detail_dialog.dart';
 import 'product_image.dart';
 
@@ -21,48 +20,7 @@ class ProductCard extends StatefulWidget {
 }
 
 class _ProductCardState extends State<ProductCard> {
-  String? _selectedSize;
-  String _hintText = 'Escolha um tamanho.';
   bool _isHovered = false;
-
-  final List<String> _availableSizes = const ['P', 'M', 'G', 'GG'];
-
-  void _onSizeSelected(String size) {
-    setState(() {
-      _selectedSize = size;
-      _hintText = 'Tamanho $size selecionado.';
-    });
-  }
-
-  void _buyProduct(BuildContext context) {
-    if (_selectedSize == null) {
-      setState(() {
-        _hintText = 'Escolha um tamanho antes de comprar.';
-      });
-      return;
-    }
-
-    final cart = context.read<CartProvider>();
-    cart.addItem(widget.product, size: _selectedSize!);
-
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '${widget.product.name} ($_selectedSize) na sacola.',
-          style: GoogleFonts.archivo(
-            color: AppTheme.papel,
-            fontWeight: FontWeight.w700,
-            fontSize: 14,
-          ),
-        ),
-        backgroundColor: AppTheme.tinta,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,61 +129,12 @@ class _ProductCardState extends State<ProductCard> {
 
           const SizedBox(height: 12),
 
-          // Seletor de Tamanhos: P, M, G, GG
-          Row(
-            children: _availableSizes.map((size) {
-              final isSelected = _selectedSize == size;
-              return Padding(
-                padding: const EdgeInsets.only(right: 6.0),
-                child: SizedBox(
-                  width: 38,
-                  height: 36,
-                  child: OutlinedButton(
-                    onPressed: () => _onSizeSelected(size),
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      backgroundColor: isSelected ? AppTheme.tinta : Colors.transparent,
-                      foregroundColor: isSelected ? AppTheme.papel : AppTheme.tinta,
-                      side: BorderSide(
-                        color: isSelected ? AppTheme.tinta : AppTheme.linha,
-                        width: 1,
-                      ),
-                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-                    ),
-                    child: Text(
-                      size,
-                      style: GoogleFonts.archivo(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-
-          const SizedBox(height: 6),
-
-          // Dica de Tamanho
-          Text(
-            _hintText,
-            style: GoogleFonts.archivo(
-              fontSize: 12,
-              color: _selectedSize == null && _hintText.contains('antes')
-                  ? AppTheme.respingo
-                  : AppTheme.tintaSuave,
-            ),
-          ),
-
-          const SizedBox(height: 10),
-
           // Botão Comprar (Full width, sharp)
           SizedBox(
             width: double.infinity,
             height: 44,
             child: ElevatedButton(
-              onPressed: () => _buyProduct(context),
+              onPressed: () => abrirNaLoja(context, widget.product),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppTheme.tinta,
                 foregroundColor: AppTheme.papel,

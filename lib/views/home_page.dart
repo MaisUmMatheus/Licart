@@ -8,7 +8,6 @@ import '../widgets/ink_splatter_painter.dart';
 import '../widgets/product_card.dart';
 import '../widgets/product_image.dart';
 import '../widgets/store_header.dart';
-import 'cart_sheet.dart';
 import 'product_detail_dialog.dart';
 
 class HomePage extends StatefulWidget {
@@ -88,10 +87,6 @@ class _HomePageState extends State<HomePage> {
         onScrollToStore: () => _scrollToKey(_storeKey),
         onScrollToProcess: () => _scrollToKey(_processKey),
         onScrollToAbout: () => _scrollToKey(_aboutKey),
-      ),
-      endDrawer: const Drawer(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-        child: CartSheet(),
       ),
       body: Stack(
         children: [
